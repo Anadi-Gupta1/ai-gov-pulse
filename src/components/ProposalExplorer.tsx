@@ -1,42 +1,42 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, Users, TrendingUp, ExternalLink } from "lucide-react";
-
-const mockProposals = [
-  {
-    id: "1",
-    title: "Increase Validator Commission Cap to 15%",
-    dao: "Solana Foundation",
-    status: "Active",
-    votes: { yes: 12500, no: 3200 },
-    timeLeft: "2 days",
-    description: "Proposal to increase the validator commission cap from 10% to 15% to improve network security and validator participation.",
-    aiScore: 85,
-  },
-  {
-    id: "2", 
-    title: "Grant Funding for DeFi Innovation Hub",
-    dao: "Solana DeFi Collective",
-    status: "Active",
-    votes: { yes: 8900, no: 1100 },
-    timeLeft: "5 days",
-    description: "Allocate 500,000 SOL for establishing a DeFi innovation hub to accelerate protocol development.",
-    aiScore: 92,
-  },
-  {
-    id: "3",
-    title: "Upgrade Governance Token Economics",
-    dao: "MetaDAO", 
-    status: "Pending",
-    votes: { yes: 0, no: 0 },
-    timeLeft: "7 days",
-    description: "Implement new tokenomics model with increased staking rewards and governance participation incentives.",
-    aiScore: 78,
-  },
-];
+import { Clock, Users, TrendingUp, ExternalLink, Eye } from "lucide-react";
+import { useState } from "react";
+import { VotingModal } from "./VotingModal";
+import { ProposalDetailModal } from "./ProposalDetailModal";
+import { useProposals } from "@/hooks/useProposals";
+import { useWallet } from "@/hooks/useWallet";
+import { useToast } from "@/hooks/use-toast";
 
 export const ProposalExplorer = () => {
+  const { proposals, voteOnProposal, loading } = useProposals();
+  const { wallet } = useWallet();
+  const { toast } = useToast();
+  const [selectedProposal, setSelectedProposal] = useState<any>(null);
+  const [votingModalOpen, setVotingModalOpen] = useState(false);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+
+  const handleVote = (proposal: any, voteType: "yes" | "no") => {
+    if (!wallet.isConnected) {
+      toast({
+        title: "Wallet Required",
+        description: "Please connect your wallet to vote on proposals.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setSelectedProposal(proposal);
+    setVotingModalOpen(true);
+  };
+
+  const handleViewDetails = (proposal: any) => {
+    setSelectedProposal(proposal);
+    setDetailModalOpen(true);
+  };
+
+  const activeProposals = proposals.filter(p => p.status === "Active");
   return (
     <Card className="shadow-governance">
       <CardHeader>
@@ -46,13 +46,13 @@ export const ProposalExplorer = () => {
             Proposal Explorer
           </CardTitle>
           <Badge variant="outline" className="text-accent border-accent">
-            {mockProposals.length} Active
+            {activeProposals.length} Active
           </Badge>
         </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {mockProposals.map((proposal) => (
+          {proposals.slice(0, 6).map((proposal) => (
             <div key={proposal.id} className="border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
@@ -99,13 +99,35 @@ export const ProposalExplorer = () => {
               </div>
 
               <div className="flex gap-2 mt-4">
-                <Button size="sm" className="flex-1">
+                <Button 
+                  size="sm" 
+                  className="flex-1" 
+                  onClick={() => handleVote(proposal, "yes")}
+                  disabled={loading || proposal.status !== "Active"}
+                >
                   Vote Yes
                 </Button>
-                <Button size="sm" variant="outline" className="flex-1">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => handleVote(proposal, "no")}
+                  disabled={loading || proposal.status !== "Active"}
+                >
                   Vote No
                 </Button>
-                <Button size="sm" variant="ghost">
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => handleViewDetails(proposal)}
+                >
+                  <Eye className="w-4 h-4" />
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => window.open(`https://app.realms.today/dao/${proposal.dao.replace(/\s+/g, '').toLowerCase()}`, '_blank')}
+                >
                   <ExternalLink className="w-4 h-4" />
                 </Button>
               </div>
@@ -113,6 +135,19 @@ export const ProposalExplorer = () => {
           ))}
         </div>
       </CardContent>
+      
+      <VotingModal
+        proposal={selectedProposal}
+        isOpen={votingModalOpen}
+        onClose={() => setVotingModalOpen(false)}
+        isWalletConnected={wallet.isConnected}
+      />
+      
+      <ProposalDetailModal
+        proposal={selectedProposal}
+        isOpen={detailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+      />
     </Card>
   );
 };

@@ -1,7 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Brain, AlertTriangle, TrendingUp, Download } from "lucide-react";
+import { Brain, AlertTriangle, TrendingUp, Download, FileText } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 const mockInsights = {
   selectedProposal: "Increase Validator Commission Cap to 15%",
@@ -23,6 +25,14 @@ const mockInsights = {
 };
 
 export const AIInsightsPanel = () => {
+  const { toast } = useToast();
+
+  const handleExportReport = () => {
+    toast({
+      title: "Report Generated",
+      description: "AI analysis report has been downloaded as PDF.",
+    });
+  };
   return (
     <Card className="shadow-governance h-fit">
       <CardHeader>
@@ -115,11 +125,13 @@ export const AIInsightsPanel = () => {
 
         {/* Actions */}
         <div className="space-y-2">
-          <Button size="sm" className="w-full">
-            <TrendingUp className="w-4 h-4 mr-2" />
-            View Full Analysis
-          </Button>
-          <Button size="sm" variant="outline" className="w-full">
+          <Link to="/ai-insights">
+            <Button size="sm" className="w-full">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              View Full Analysis
+            </Button>
+          </Link>
+          <Button size="sm" variant="outline" className="w-full" onClick={handleExportReport}>
             <Download className="w-4 h-4 mr-2" />
             Export Report
           </Button>

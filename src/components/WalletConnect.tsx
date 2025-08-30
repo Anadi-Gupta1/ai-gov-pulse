@@ -1,43 +1,50 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Wallet, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { Wallet, ChevronDown, LogOut } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { useWallet } from "@/hooks/useWallet";
 
 export const WalletConnect = () => {
-  const [isConnected, setIsConnected] = useState(false);
-  const [walletAddress] = useState("7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU");
+  const { wallet, connect, disconnect, formatAddress } = useWallet();
 
-  const handleConnect = () => {
-    // Mock connection - in real app would use Solana wallet adapter
-    setIsConnected(true);
-  };
-
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 4)}...${address.slice(-4)}`;
-  };
-
-  if (isConnected) {
+  if (wallet.isConnected && wallet.address) {
     return (
       <div className="flex items-center space-x-2">
         <Badge variant="outline" className="text-success border-success">
           Connected
         </Badge>
-        <Button variant="outline" className="text-governance-primary border-governance-primary hover:bg-governance-secondary">
-          <Wallet className="w-4 h-4 mr-2" />
-          {formatAddress(walletAddress)}
-          <ChevronDown className="w-4 h-4 ml-2" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="text-governance-primary border-governance-primary hover:bg-governance-secondary">
+              <Wallet className="w-4 h-4 mr-2" />
+              {formatAddress(wallet.address)}
+              <ChevronDown className="w-4 h-4 ml-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-64">
+            <div className="p-3 border-b">
+              <p className="text-sm font-medium text-governance-primary">Wallet Info</p>
+              <p className="text-xs text-muted-foreground">Balance: {wallet.balance.toFixed(2)} SOL</p>
+              <p className="text-xs text-muted-foreground">Voting Power: {wallet.votingPower.toLocaleString()}</p>
+            </div>
+            <DropdownMenuItem onClick={disconnect} className="text-destructive">
+              <LogOut className="w-4 h-4 mr-2" />
+              Disconnect
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
   }
 
   return (
     <Button 
-      onClick={handleConnect}
+      onClick={connect}
+      disabled={wallet.isConnecting}
       className="bg-gradient-to-r from-governance-primary to-accent hover:from-governance-primary/90 hover:to-accent/90 text-white"
     >
       <Wallet className="w-4 h-4 mr-2" />
-      Connect Wallet
+      {wallet.isConnecting ? "Connecting..." : "Connect Wallet"}
     </Button>
   );
 };
