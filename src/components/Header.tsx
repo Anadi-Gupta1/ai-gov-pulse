@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { WalletConnect } from "./WalletConnect";
+import { ModeToggle } from "./mode-toggle";
 import { Vote, TrendingUp, Zap, BarChart3 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
@@ -60,8 +61,11 @@ export const Header = () => {
             </nav>
           </div>
 
-          {/* Wallet Connection */}
-          <WalletConnect />
+          {/* Theme Toggle and Wallet Connection */}
+          <div className="flex items-center gap-3">
+            <ModeToggle />
+            <WalletConnect />
+          </div>
         </div>
       </div>
     </header>
