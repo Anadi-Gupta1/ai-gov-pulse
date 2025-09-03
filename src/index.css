@@ -2,6 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom utilities for governance theme */
+@layer utilities {
+  .shadow-governance {
+    box-shadow: var(--shadow-governance);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .bg-gradient-governance {
+    background: var(--gradient-primary);
+  }
+  
+  .bg-gradient-subtle {
+    background: var(--gradient-subtle);
+  }
+  
+  .bg-gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  /* Wallet adapter customizations */
+  .wallet-adapter-button {
+    @apply rounded-md font-medium transition-all duration-200;
+  }
+  
+  .wallet-adapter-button:not(.wallet-adapter-button-trigger) {
+    @apply bg-gradient-to-r from-governance-primary to-accent text-white;
+  }
+  
+  .wallet-adapter-button:hover:not(.wallet-adapter-button-trigger) {
+    @apply from-governance-primary/90 to-accent/90;
+  }
+  
+  .wallet-adapter-modal-wrapper {
+    @apply backdrop-blur-sm;
+  }
+  
+  .wallet-adapter-modal {
+    @apply border border-border bg-card text-card-foreground;
+    border-radius: var(--radius);
+  }
+  
+  .wallet-adapter-modal-title {
+    @apply text-governance-primary;
+  }
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
 */
