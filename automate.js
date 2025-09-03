@@ -475,16 +475,16 @@ export const ProposalAnalytics = () => {
 // Automated commit function
 async function commitChange(fileName, commitMessage) {
   try {
-    console.log(\`🔄 Committing: \${fileName}\`);
+    console.log(`🔄 Committing: ${fileName}`);
     
-    execSync(\`git add "\${fileName}"\`, { stdio: 'inherit' });
-    execSync(\`git commit -m "\${commitMessage}"\`, { stdio: 'inherit' });
+    execSync(`git add "${fileName}"`, { stdio: 'inherit' });
+    execSync(`git commit -m "${commitMessage}"`, { stdio: 'inherit' });
     execSync('git push origin main', { stdio: 'inherit' });
     
-    console.log(\`✅ Successfully committed: \${fileName}\`);
+    console.log(`✅ Successfully committed: ${fileName}`);
     return true;
   } catch (error) {
-    console.error(\`❌ Error committing \${fileName}:\`, error.message);
+    console.error(`❌ Error committing ${fileName}:`, error.message);
     return false;
   }
 }
@@ -498,22 +498,22 @@ function createComponent(improvement) {
   );
   
   if (fs.existsSync(filePath)) {
-    console.log(\`⚠️  \${fileName} already exists, skipping...\`);
+    console.log(`⚠️  ${fileName} already exists, skipping...`);
     return false;
   }
 
   const template = componentTemplates[fileName];
   if (!template) {
-    console.log(\`⚠️  No template found for \${fileName}, skipping...\`);
+    console.log(`⚠️  No template found for ${fileName}, skipping...`);
     return false;
   }
 
   try {
     fs.writeFileSync(filePath, template);
-    console.log(\`📝 Created: \${fileName}\`);
+    console.log(`📝 Created: ${fileName}`);
     return true;
   } catch (error) {
-    console.error(\`❌ Error creating \${fileName}:\`, error.message);
+    console.error(`❌ Error creating ${fileName}:`, error.message);
     return false;
   }
 }
@@ -525,23 +525,23 @@ async function runAutomatedDevelopment() {
   for (let i = 0; i < improvements.length; i++) {
     const improvement = improvements[i];
     
-    console.log(\`\n📦 Processing: \${improvement.name} (\${i + 1}/\${improvements.length})\`);
-    console.log(\`📄 Description: \${improvement.description}\`);
+    console.log(`\n📦 Processing: ${improvement.name} (${i + 1}/${improvements.length})`);
+    console.log(`📄 Description: ${improvement.description}`);
     
     // Create the component/hook
     const created = createComponent(improvement);
     
     if (created) {
       // Commit the change
-      const commitMessage = \`feat: Add \${improvement.name}
+      const commitMessage = `feat: Add ${improvement.name}
 
-\${improvement.description}
+${improvement.description}
 
-- Implements \${improvement.type} with modern React patterns
+- Implements ${improvement.type} with modern React patterns
 - Uses shadcn/ui components for consistency
 - Includes TypeScript types and proper error handling
 - Responsive design with Tailwind CSS
-- Follows project's design system and patterns\`;
+- Follows project's design system and patterns`;
 
       const committed = await commitChange(
         path.join('src', improvement.type === 'component' ? 'components' : 'hooks', improvement.file),
@@ -549,7 +549,7 @@ async function runAutomatedDevelopment() {
       );
       
       if (committed) {
-        console.log(\`✨ \${improvement.name} deployed successfully!\`);
+        console.log(`✨ ${improvement.name} deployed successfully!`);
         
         // Add delay between commits to avoid rate limiting
         console.log('⏳ Waiting 3 seconds before next deployment...');
@@ -560,7 +560,7 @@ async function runAutomatedDevelopment() {
   
   console.log('\n🎉 Automated Development Complete!');
   console.log('📊 Summary:');
-  console.log(\`   • Total improvements planned: \${improvements.length}\`);
+  console.log(`   • Total improvements planned: ${improvements.length}`);
   console.log('   • All changes committed and pushed to GitHub');
   console.log('   • Website is now more feature-complete and production-ready');
 }
