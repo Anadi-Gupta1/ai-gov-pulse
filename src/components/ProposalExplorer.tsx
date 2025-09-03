@@ -1,24 +1,25 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { LoadingOverlay } from "@/components/ui/loading";
 import { Clock, Users, TrendingUp, ExternalLink, Eye } from "lucide-react";
 import { useState } from "react";
 import { VotingModal } from "./VotingModal";
 import { ProposalDetailModal } from "./ProposalDetailModal";
-import { useProposals } from "@/hooks/useProposals";
-import { useWallet } from "@/hooks/useWallet";
+import { useProposals, type Proposal } from "@/hooks/useProposals";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { useToast } from "@/hooks/use-toast";
 
 export const ProposalExplorer = () => {
   const { proposals, voteOnProposal, loading } = useProposals();
-  const { wallet } = useWallet();
+  const { connected } = useWallet();
   const { toast } = useToast();
-  const [selectedProposal, setSelectedProposal] = useState<any>(null);
+  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
   const [votingModalOpen, setVotingModalOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
 
-  const handleVote = (proposal: any, voteType: "yes" | "no") => {
-    if (!wallet.isConnected) {
+  const handleVote = (proposal: Proposal, voteType: "yes" | "no") => {
+    if (!connected) {
       toast({
         title: "Wallet Required",
         description: "Please connect your wallet to vote on proposals.",
@@ -31,25 +32,26 @@ export const ProposalExplorer = () => {
     setVotingModalOpen(true);
   };
 
-  const handleViewDetails = (proposal: any) => {
+  const handleViewDetails = (proposal: Proposal) => {
     setSelectedProposal(proposal);
     setDetailModalOpen(true);
   };
 
   const activeProposals = proposals.filter(p => p.status === "Active");
   return (
-    <Card className="shadow-governance">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-governance-primary flex items-center gap-2">
-            <TrendingUp className="w-5 h-5" />
-            Proposal Explorer
-          </CardTitle>
-          <Badge variant="outline" className="text-accent border-accent">
-            {activeProposals.length} Active
-          </Badge>
-        </div>
-      </CardHeader>
+    <LoadingOverlay isLoading={loading}>
+      <Card className="shadow-governance">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-governance-primary flex items-center gap-2">
+              <TrendingUp className="w-5 h-5" />
+              Proposal Explorer
+            </CardTitle>
+            <Badge variant="outline" className="text-accent border-accent">
+              {activeProposals.length} Active
+            </Badge>
+          </div>
+        </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {proposals.slice(0, 6).map((proposal) => (
@@ -140,7 +142,7 @@ export const ProposalExplorer = () => {
         proposal={selectedProposal}
         isOpen={votingModalOpen}
         onClose={() => setVotingModalOpen(false)}
-        isWalletConnected={wallet.isConnected}
+        isWalletConnected={connected}
       />
       
       <ProposalDetailModal
@@ -148,6 +150,7 @@ export const ProposalExplorer = () => {
         isOpen={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
       />
-    </Card>
+      </Card>
+    </LoadingOverlay>
   );
 };
